@@ -10,9 +10,7 @@
 #include <stdlib.h>
 #include <chrono>
 
-
-int main(int argc, const char* argv[]) {
-    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+void tester(){
     ADS_set<int> test{ 12 };
     ADS_set<int> test3(test);
     ADS_set<int> test4{ 12 };
@@ -70,7 +68,11 @@ int main(int argc, const char* argv[]) {
     for (auto v : test6) {
         std::cout << v << "\n";
     }
-    test6.dump();
+    test6.dump();}
+
+int main(int argc, const char* argv[]) {
+tester();
+  
 }
         
     

@@ -108,7 +108,7 @@ public:
         }
     }
 
-    ADS_set& operator=(const ADS_set& other) {
+    ADS_set& operator=( ADS_set other) {
         if (this == &other) return *this;
         ADS_set copy = other;
         clear();
@@ -333,7 +333,7 @@ private:
     size_t curr_idx;
     element* table;
 public:
-    Iterator() : ptr{ nullptr }, table_size{ 0 }, curr_idx{ 0 }, table{ nullptr }{}
+    Iterator() : ptr{ nullptr }, curr_idx{ 0 }, table{ nullptr }{}
     Iterator(element* ptr2, size_t curr_idx2, element* table2) { ptr = ptr2; table = table2; curr_idx = curr_idx2; }
     /*~Iterator() { // braucht der Iterator einenen Dekonstruktor ????
         delete ptr;
