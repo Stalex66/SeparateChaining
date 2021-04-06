@@ -114,7 +114,6 @@ public:
         clear();
         std::swap(table, copy.table);
         std::swap(curr_size, copy.curr_size);
-        std::swap(table_size, copy.table_size);
         return *this;
     }
 
@@ -157,8 +156,10 @@ public:
 
     std::pair<iterator, bool> insert(const key_type& key) {
         std::pair <iterator, bool> ret;
-        if (iterator var = find(key) == end()) {
-            var = insert_intern(key);
+        iterator var = find(key);
+        if (var == end()) {
+            auto element = insert_intern(key);
+            var = Iterator(element,h(key),table); // glaube das sollte so passen mal schauen bitte
             ret = std::make_pair(var, true);
         }
         else { ret = std::make_pair(var, false); }
@@ -341,7 +342,7 @@ public:
     }*/
     reference operator*() const { return (ptr->key); }
 
-    pointer operator->() const { return ptr; }
+    pointer operator->() const { return &(ptr->key); }
 
     Iterator& operator++() {
         // wenn mode == used
