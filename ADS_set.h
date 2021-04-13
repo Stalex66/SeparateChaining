@@ -255,7 +255,7 @@ public:
 
 template <typename Key, size_t N>
 typename ADS_set<Key, N>::element* ADS_set<Key, N>::insert_intern(const key_type& key) {
-    size_type idx{ h(key) };
+    /*size_type idx{ h(key) };
 
     element* prufung = &table[idx];
     while (prufung->mode != Mode::free) {
@@ -265,7 +265,20 @@ typename ADS_set<Key, N>::element* ADS_set<Key, N>::insert_intern(const key_type
     prufung->mode = Mode::used;
     prufung->next = new element;
     ++curr_size;
-    return prufung; // retourniert Iterator auf position von insert
+    return prufung; retourniert Iterator auf position von insert*/
+    size_type idx{ h(key) };
+    element* help;
+    help = new element;
+    help->next = &table[idx];
+    help->key = key;
+    help->mode = Mode::used;
+    help->next = new element;
+    ++curr_size;
+    table[idx] = *help;
+    return help;
+
+
+
 }
 
 template <typename Key, size_t N>
