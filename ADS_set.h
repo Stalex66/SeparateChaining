@@ -48,6 +48,7 @@ private:
             mode = other.mode;
             return *this;
         }
+
     };
     element* table{ new element[N] };
 
@@ -267,16 +268,16 @@ typename ADS_set<Key, N>::element* ADS_set<Key, N>::insert_intern(const key_type
     ++curr_size;
     return prufung; retourniert Iterator auf position von insert*/
     size_type idx{ h(key) };
-    element* help;
-    help = new element;
-    help->next = &table[idx];
-    help->key = key;
-    help->mode = Mode::used;
-    help->next = new element;
+    element* alt =  &table[idx];
+    element* help= new element;
+    help->next = alt->next;
+    help->key = alt->key;
+    help->mode = alt->mode;
+    alt->next = help;
+    alt->key = key;
+    alt->mode = Mode::used;
     ++curr_size;
-    table[idx] = *help;
-    return help;
-
+    return alt;
 
 
 }
