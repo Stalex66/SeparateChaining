@@ -225,14 +225,14 @@ public:
 
         for (auto first = begin(); first != end(); ++first) {
             
-            size_type idx = hasher{}(*first) % size;
-            element* alt = &table_new[idx];
+            size_type index = (hasher{}((*first))) % size;
+            element* alt = &table_new[index];
             element* help = new element;
             help->next = alt->next;
             help->key = alt->key;
             help->mode = alt->mode;
             alt->next = help;
-            alt->key = *first;
+            alt->key = (*first);
             alt->mode = Mode::used;
 
         }
@@ -295,9 +295,10 @@ typename ADS_set<Key, N>::element* ADS_set<Key, N>::insert_intern(const key_type
     ++curr_size;
     return prufung; //retourniert Iterator auf position von insert
     */
-    if (curr_size % 10 == 5) {
-        reserve(curr_size + 10);
-    }
+if(curr_size > (table_size*100)/75){
+  //bei 75% Auslastung wird die Größe verdoppelt
+  reserve(table_size*2);
+}
         size_type idx{ h(key) };
         element* alt = &table[idx];
         element* help = new element;
@@ -327,8 +328,7 @@ typename ADS_set<Key, N>::element* ADS_set<Key, N>::find_intern(const key_type& 
 
 template <typename Key, size_t N>
 template<typename InputIt> void ADS_set<Key, N>::insert(InputIt first, InputIt last) {
-    difference_type z = last - first;
-    reserve(this->curr_size + z);
+
     for (; first != last; ++first) {
         if (!count(*first)) {
             insert_intern(*first);
@@ -417,7 +417,8 @@ public:
     }
 
     friend bool operator==(const Iterator& lhs, const Iterator& rhs) {
-        return  lhs.ptr == rhs.ptr;
+        return lhs.curr_idx == lhs.table_size && rhs.curr_idx == rhs.table_size
+            || lhs.ptr == rhs.ptr;
     }
 
     friend bool operator!=(const Iterator& lhs, const Iterator& rhs) {
