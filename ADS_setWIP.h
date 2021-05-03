@@ -236,6 +236,7 @@ public:
             alt->mode = Mode::used;
 
         }
+        clear_chains();
         delete[] table;
         table = table_new;
         table_size = size;
