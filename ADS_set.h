@@ -152,6 +152,7 @@ public:
         if (this == &other) return;
         std::swap(table, other.table);
         std::swap(curr_size, other.curr_size);
+        std::swap(table_size,other.table_size);
     }
 
     void insert(std::initializer_list<key_type> ilist) {
