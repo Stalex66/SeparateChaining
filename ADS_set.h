@@ -1,4 +1,4 @@
-﻿#ifndef ADS_SET_H
+#ifndef ADS_SET_H
 #define ADS_SET_H
 
 #include <functional>
@@ -27,7 +27,7 @@ private:
     //values
     enum class Mode { free, used };
 
-    static constexpr size_type table_size{ N };
+    size_type table_size{ N };
 
     size_type curr_size{ 0 };
 
@@ -53,10 +53,9 @@ private:
     element* table{ new element[N] };
 
     //functions
-
-    static size_t h(const key_type& key) { return hasher{}(key) % table_size; };
+    size_t h(const key_type& key) const{ return hasher{}(key) % table_size; };
     element* insert_intern(const key_type& key);
-    element* find_intern(const key_type& key) const {return find_intern(key, h(key));}
+    element* find_intern(const key_type& key) const { return find_intern(key, h(key)); }
     element* find_intern(const key_type& key, size_type idx)const;
 
 public:
@@ -96,7 +95,7 @@ public:
             }
         }
         */
-        for (size_t i{ 0 }; i < N; i++) {
+        for (size_t i{ 0 }; i < table_size; i++) {
             element* aktuell = &table[i];
             if (aktuell->mode == Mode::free) continue;
             aktuell = aktuell->next;
@@ -109,7 +108,7 @@ public:
         }
     }
 
-    ADS_set& operator=( ADS_set other) {
+    ADS_set& operator=(ADS_set other) {
         if (this == &other) return *this;
         ADS_set copy = other;
         clear();
@@ -131,11 +130,11 @@ public:
     size_type count(const key_type& key) const { return static_cast<bool>(find_intern(key)); } // wie oft das Element vorkommt 0/1 !! gibt 1 -> ein pointer 0 = nullptr
 
     iterator find(const key_type& key) const {
-        size_type idx{ h(key) };
-        element* found = find_intern(key, idx);
+        size_t index = h(key);
+        element* found = find_intern(key, index);
         if (found == nullptr)
             return end();
-        return Iterator(found, idx, table);
+        return Iterator(found, index, table, table_size);
     }
 
     void clear() { // löscht alle Elemente von hinten nach vorne
@@ -160,7 +159,7 @@ public:
         iterator var = find(key);
         if (var == end()) {
             auto element = insert_intern(key);
-            var = Iterator(element,h(key),table); // glaube das sollte so passen mal schauen bitte
+            var = Iterator(element, h(key), table,table_size); // glaube das sollte so passen mal schauen bitte
             ret = std::make_pair(var, true);
         }
         else { ret = std::make_pair(var, false); }
@@ -196,7 +195,8 @@ public:
                 delete val;
                 curr_size--;
                 return 1;
-            }else{
+            }
+            else {
                 previous = val;
                 val = val->next;
             }
@@ -209,13 +209,41 @@ public:
         for (size_t index = 0; index < table_size; ++index) {
             element* a = &table[index];
             if (a->mode != Mode::free)
-                return const_iterator(a, index, table);
+                return const_iterator(a, index, table,table_size);
         }
         return end();
     }
     const_iterator end() const {
-        return const_iterator(nullptr, table_size, nullptr);
+        return const_iterator(nullptr, table_size, nullptr,table_size);
     }
+
+
+    void reserve(size_t size) {
+        if (size < table_size) return;
+
+        element* table_new{ new element[size] };
+
+        for (auto first = begin(); first != end(); ++first) {
+            
+            size_type index = (hasher{}((*first))) % size;
+            element* alt = &table_new[index];
+            element* help = new element;
+            help->next = alt->next;
+            help->key = alt->key;
+            help->mode = alt->mode;
+            alt->next = help;
+            alt->key = (*first);
+            alt->mode = Mode::used;
+
+        }
+        clear_chains();
+        delete[] table;
+        table = table_new;
+        table_size = size;
+        return;
+    }
+
+
 
 
     void dump(std::ostream& o = std::cerr) const;
@@ -257,7 +285,7 @@ public:
 template <typename Key, size_t N>
 typename ADS_set<Key, N>::element* ADS_set<Key, N>::insert_intern(const key_type& key) {
     /*size_type idx{ h(key) };
-
+    
     element* prufung = &table[idx];
     while (prufung->mode != Mode::free) {
         prufung = prufung->next;
@@ -266,36 +294,42 @@ typename ADS_set<Key, N>::element* ADS_set<Key, N>::insert_intern(const key_type
     prufung->mode = Mode::used;
     prufung->next = new element;
     ++curr_size;
-    return prufung; retourniert Iterator auf position von insert*/
-    size_type idx{ h(key) };
-    element* alt =  &table[idx];
-    element* help= new element;
-    help->next = alt->next;
-    help->key = alt->key;
-    help->mode = alt->mode;
-    alt->next = help;
-    alt->key = key;
-    alt->mode = Mode::used;
-    ++curr_size;
-    return alt;
-
-
+    return prufung; //retourniert Iterator auf position von insert
+    */
+if(curr_size > (table_size*100)/75){
+  //bei 75% Auslastung wird die Größe verdoppelt
+  reserve(table_size*2);
+}
+        size_type idx{ h(key) };
+        element* alt = &table[idx];
+        element* help = new element;
+        help->next = alt->next;
+        help->key = alt->key;
+        help->mode = alt->mode;
+        alt->next = help;
+        alt->key = key;
+        alt->mode = Mode::used;
+        ++curr_size;
+        return alt;
+    
+    
 }
 
 template <typename Key, size_t N>
 typename ADS_set<Key, N>::element* ADS_set<Key, N>::find_intern(const key_type& key, size_type idx) const {
     element* prufung = &table[idx];
-    while (true) {
-        if (prufung->mode == Mode::used && key_equal{}(prufung->key, key)) return prufung;
-        if (prufung->mode == Mode::free) return nullptr;
+    while (prufung->mode != Mode::free) {
+        if(key_equal{}(prufung->key, key)) return prufung;
         prufung = prufung->next;
     }
+    return nullptr;
 }
 
 
 
 template <typename Key, size_t N>
 template<typename InputIt> void ADS_set<Key, N>::insert(InputIt first, InputIt last) {
+
     for (; first != last; ++first) {
         if (!count(*first)) {
             insert_intern(*first);
@@ -317,8 +351,8 @@ void ADS_set<Key, N>::dump(std::ostream& o) const {
 
             element* prufung = &table[idx];
             while (prufung->mode != Mode::free) {
-                prufung = prufung->next; 
-                if (prufung->mode == Mode::used){ o << "--" << prufung->key; }
+                prufung = prufung->next;
+                if (prufung->mode == Mode::used) { o << "--" << prufung->key; }
             }
             o << "-free";
             break;
@@ -342,14 +376,14 @@ public:
     using element = ADS_set::element;
 
 private:
-    static constexpr size_t table_size = N;
 
     element* ptr;
     size_t curr_idx;
     element* table;
+    size_t table_size ;
 public:
-    Iterator() : ptr{ nullptr }, curr_idx{ 0 }, table{ nullptr }{}
-    Iterator(element* ptr2, size_t curr_idx2, element* table2) { ptr = ptr2; table = table2; curr_idx = curr_idx2; }
+    Iterator() : ptr{ nullptr }, curr_idx{ 0 }, table{ nullptr },table_size{ 0 }{}
+    Iterator(element* ptr2, size_t curr_idx2, element* table2, size_t table_size) { ptr = ptr2; table = table2; curr_idx = curr_idx2; this->table_size = table_size; }
     /*~Iterator() { // braucht der Iterator einenen Dekonstruktor ????
         delete ptr;
         delete[] table;
@@ -363,7 +397,8 @@ public:
         if (ptr->next->mode != Mode::free) {
             // nächster pointer ist used
             ptr = ptr->next;
-        } else {
+        }
+        else {
             // nächster pointer ist leer
             for (curr_idx = curr_idx + 1; curr_idx < table_size; ++curr_idx) {
                 ptr = &table[curr_idx];
@@ -383,7 +418,7 @@ public:
     }
 
     friend bool operator==(const Iterator& lhs, const Iterator& rhs) {
-        return lhs.curr_idx == table_size && rhs.curr_idx == table_size
+        return lhs.curr_idx == lhs.table_size && rhs.curr_idx == rhs.table_size
             || lhs.ptr == rhs.ptr;
     }
 
