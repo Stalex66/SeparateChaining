@@ -327,6 +327,8 @@ typename ADS_set<Key, N>::element* ADS_set<Key, N>::find_intern(const key_type& 
 
 template <typename Key, size_t N>
 template<typename InputIt> void ADS_set<Key, N>::insert(InputIt first, InputIt last) {
+    difference_type z = last - first;
+    reserve(this->curr_size + z);
     for (; first != last; ++first) {
         if (!count(*first)) {
             insert_intern(*first);
@@ -377,10 +379,10 @@ private:
     element* ptr;
     size_t curr_idx;
     element* table;
-    size_t table_size;
+    size_t table_size ;
 public:
-    Iterator() : ptr{ nullptr }, curr_idx{ 0 }, table{ nullptr }, table_size{ 0 }{}
-    Iterator(element* ptr2, size_t curr_idx2, element* table2,size_t table_size) { ptr = ptr2; table = table2; curr_idx = curr_idx2; table_size = table_size; }
+    Iterator() : ptr{ nullptr }, curr_idx{ 0 }, table{ nullptr },table_size{ 0 }{}
+    Iterator(element* ptr2, size_t curr_idx2, element* table2, size_t table_size) { ptr = ptr2; table = table2; curr_idx = curr_idx2; this->table_size = table_size; }
     /*~Iterator() { // braucht der Iterator einenen Dekonstruktor ????
         delete ptr;
         delete[] table;
@@ -415,8 +417,7 @@ public:
     }
 
     friend bool operator==(const Iterator& lhs, const Iterator& rhs) {
-        return lhs.curr_idx == lhs.table_size && rhs.curr_idx == rhs.table_size
-            || lhs.ptr == rhs.ptr;
+        return  lhs.ptr == rhs.ptr;
     }
 
     friend bool operator!=(const Iterator& lhs, const Iterator& rhs) {
