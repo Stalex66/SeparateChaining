@@ -27,7 +27,7 @@ private:
     //values
     enum class Mode { free, used };
 
-    size_type table_size{ N };
+    size_type table_size{N};
 
     size_type curr_size{ 0 };
 
