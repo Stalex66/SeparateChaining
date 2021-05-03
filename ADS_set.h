@@ -9,7 +9,7 @@
 #include <stdexcept>
 
 
-template <typename Key, size_t N = 13> // Startgröße der Tabelle
+template <typename Key, size_t N = 217> // Startgröße der Tabelle
 class ADS_set {
 public:
     class Iterator;
@@ -27,7 +27,7 @@ private:
     //values
     enum class Mode { free, used };
 
-    size_type table_size{N};
+    size_type table_size{};
 
     size_type curr_size{ 0 };
 
@@ -59,17 +59,20 @@ private:
     element* find_intern(const key_type& key, size_type idx)const;
 
 public:
-    ADS_set() {}
+    ADS_set():table_size{N} {}
 
     ADS_set(std::initializer_list<key_type> ilist) : ADS_set{} { insert(ilist); }
 
     template<typename InputIt> ADS_set(InputIt first, InputIt last) : ADS_set{} { insert(first, last); }
 
-    ADS_set(const ADS_set& other) { // siehe Table problem
+    ADS_set(const ADS_set& other): ADS_set() { // siehe Table problem
+        table_size = other.table_size;
+        element* table_new{new element[table_size]};
+        delete[] table;
+        table = table_new;
+        insert(other.begin(),other.end());
         curr_size = other.curr_size;
-        for (size_type i{ 0 }; i < table_size; ++i) {
-            table[i] = other.table[i];
-        }
+        
     }
 
     ~ADS_set() { // löscht erst alle Elemente von hinten nach vorne und danach die Tabelle
@@ -103,6 +106,7 @@ public:
                 element* alt = aktuell;
                 aktuell = aktuell->next;
                 delete alt;
+                curr_size+=-1;
             }
             delete aktuell;
         }
@@ -110,10 +114,10 @@ public:
 
     ADS_set& operator=(ADS_set other) {
         if (this == &other) return *this;
-        ADS_set copy = other;
         clear();
-        std::swap(table, copy.table);
-        std::swap(curr_size, copy.curr_size);
+        std::swap(table, other.table);
+        std::swap(curr_size, other.curr_size);
+        std::swap(table_size, other.table_size);
         return *this;
     }
 
@@ -159,7 +163,7 @@ public:
         iterator var = find(key);
         if (var == end()) {
             auto element = insert_intern(key);
-            var = Iterator(element, h(key), table,table_size); // glaube das sollte so passen mal schauen bitte
+            var = Iterator(element, h(key), table, table_size); // glaube das sollte so passen mal schauen bitte
             ret = std::make_pair(var, true);
         }
         else { ret = std::make_pair(var, false); }
@@ -220,7 +224,7 @@ public:
 
     void reserve(size_t size) {
         if (size < table_size) return;
-
+        int help = curr_size;
         element* table_new{ new element[size] };
 
         for (auto first = begin(); first != end(); ++first) {
@@ -237,6 +241,7 @@ public:
 
         }
         clear_chains();
+        curr_size = help;
         delete[] table;
         table = table_new;
         table_size = size;
@@ -296,10 +301,10 @@ typename ADS_set<Key, N>::element* ADS_set<Key, N>::insert_intern(const key_type
     ++curr_size;
     return prufung; //retourniert Iterator auf position von insert
     */
-if(curr_size > (table_size*100)/75){
-  //bei 75% Auslastung wird die Größe verdoppelt
-  reserve(table_size*2);
-}
+    if (curr_size > (table_size * 100) / 75) {
+        //bei 75% Auslastung wird die Größe verdoppelt
+        reserve(table_size * 2);
+    }
         size_type idx{ h(key) };
         element* alt = &table[idx];
         element* help = new element;
@@ -419,7 +424,7 @@ public:
 
     friend bool operator==(const Iterator& lhs, const Iterator& rhs) {
         return lhs.curr_idx == lhs.table_size && rhs.curr_idx == rhs.table_size
-            || lhs.ptr == rhs.ptr;
+            || (lhs.ptr == rhs.ptr);
     }
 
     friend bool operator!=(const Iterator& lhs, const Iterator& rhs) {

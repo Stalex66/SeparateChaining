@@ -127,19 +127,30 @@ void tester() {
 }
 
 int main(int argc, const char* argv[]) {
+    while(true){
+    
     vector<int> test;
-    ADS_set<int,13> ads;
-    for (size_t i{ 0 }; i < 1000; i++) {
+    ADS_set<int, 13> ads;
+    for (size_t i{ 0 }; i < 10; i++) {
 
         test.push_back(i);
 
 
     }
- 
-
-    ads.insert(test.begin(),test.end());
+    ads.insert(test.begin(), test.end());
+    ADS_set<int, 13>hey{4, 5, 6};
+    swap(ads,hey);
+      hey.dump();
     ads.dump();
+    if (hey == ads) cout << "YES";
+    for (size_t i{ 0 }; i < 1000; i++) {
+
+        ads.erase(i);
+
+
+    }
+    hey.dump();
+    ads.dump();
+    cout << "hello";
 }
-
-
-
+}
