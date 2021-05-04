@@ -302,10 +302,13 @@ typename ADS_set<Key, N>::element* ADS_set<Key, N>::insert_intern(const key_type
     ++curr_size;
     return prufung; //retourniert Iterator auf position von insert
     */
-    if (curr_size > (table_size * 100) / 75) {
+    if (curr_size > (table_size * 75) / 100) {
+
         //bei 75% Auslastung wird die Größe verdoppelt
         reserve(table_size * 2);
     }
+
+
         size_type idx{ h(key) };
         element* alt = &table[idx];
         element* help = new element;
