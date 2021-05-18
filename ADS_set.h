@@ -9,7 +9,7 @@
 #include <stdexcept>
 
 
-template <typename Key, size_t N = 217> // Startgröße der Tabelle
+template <typename Key, size_t N = 44> // Startgröße der Tabelle
 class ADS_set {
 public:
     class Iterator;
@@ -305,7 +305,7 @@ typename ADS_set<Key, N>::element* ADS_set<Key, N>::insert_intern(const key_type
     if (curr_size > (table_size * 75) / 100) {
 
         //bei 75% Auslastung wird die Größe verdoppelt
-        reserve(table_size * 2);
+        reserve(table_size * 3);
     }
 
 
