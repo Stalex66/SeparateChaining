@@ -427,7 +427,7 @@ public:
     }
 
     friend bool operator==(const Iterator& lhs, const Iterator& rhs) {
-        return lhs.curr_idx == lhs.table_size && rhs.curr_idx == rhs.table_size
+        return (lhs.curr_idx == lhs.table_size && rhs.curr_idx == rhs.table_size)
             || (lhs.ptr == rhs.ptr);
     }
 
