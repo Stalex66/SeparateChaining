@@ -990,7 +990,8 @@ void test_swap_insert_erase(ads::set<val_t>& a1, std::set<val_t>& r1, ads::set<v
     std::cerr << "swap(a1, a2)\n";
     swap(a1, a2);
     swap(r1, r2);
-
+      a1.dump();
+      a2.dump();
     std::cerr << CYAN("NOTE: ") << "following test is done on a1 after swap(a1, a2)!\n";
     test_insert_erase(a1, r1, n, max_value, gen);
     sanity_check("swap_insert_erase(a2)", a2, r2);
@@ -1113,6 +1114,7 @@ void test_all_ph2(size_t n, size_t max_value, RNG& gen) {
 
         test_size(a, r);
         test_empty(a, r);
+
     }
 
     {
@@ -1206,22 +1208,27 @@ void test_all_ph2(size_t n, size_t max_value, RNG& gen) {
 
         ads::set<val_t> a2;
         std::set<val_t> r2;
-
+      a1.dump();
+      a2.dump();
         std::cerr << "\na2";
         test_insert_it_erase(a2, r2, n, max_value, gen);
         test_insert_erase(a2, r2, n, max_value, gen);
-
+        a1.dump();
+        a2.dump();
         test_insert(a2, r2, n, max_value, gen);
         test_insert(a2, r2, n, max_value, gen);
-
+      a1.dump();
+      a2.dump();
         test_swap_insert_erase(a1, r1, a2, r2, n, max_value, gen);
 
         test_insert_iter(a1, r1, n, max_value, gen);
         test_insert_iter(a2, r2, n, max_value, gen);
-
+      a1.dump();
+      a2.dump();
         test_insert_erase(a1, r1, n, max_value, gen);
         test_insert_erase(a2, r2, n, max_value, gen);
-
+        a1.dump();
+        a2.dump();
         test_iter(a1, r1);
         test_iter(a2, r2);
 
@@ -1239,15 +1246,17 @@ void test_all_ph2(size_t n, size_t max_value, RNG& gen) {
 
         std::cerr << "\na1";
         test_insert_erase(a1, r1, n, max_value, gen);
-
+        a1.dump();
         ads::set<val_t> a2;
         std::set<val_t> r2;
-
+        
         std::cerr << "\na2";
         test_insert_erase(a2, r2, n, max_value, gen);
-
+        a1.dump();
+        a2.dump();
         test_swap_insert_erase(a1, r1, a2, r2, n, max_value, gen);
-
+        a1.dump();
+        a2.dump();
         test_equality(a1, r1, a2, r2);
         test_inequality(a1, r1, a2, r2);
     }
@@ -1262,13 +1271,15 @@ void test_all_ph2(size_t n, size_t max_value, RNG& gen) {
 
         test_insert_erase(a1, r1, n, max_value, gen);
         test_insert_erase(a2, r2, n, max_value, gen);
-
+        a1.dump();
+        a2.dump();
         test_equality(a1, r1, a2, r2);
         test_inequality(a1, r1, a2, r2);
 
         test_clear(a1, r1);
         test_equality(a1, r1, a2, r2);
-
+        a1.dump();
+        a2.dump();
         ads::set<val_t> a3;
         std::set<val_t> r3;
 
